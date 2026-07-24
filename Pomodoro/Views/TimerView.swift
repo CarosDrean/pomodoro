@@ -77,6 +77,10 @@ struct TimerView: View {
             }
         }
         .frame(width: 160, height: 160)
+        .contentShape(Circle())
+        .onTapGesture {
+            viewModel.toggle()
+        }
     }
 
     private var phaseLabel: some View {
