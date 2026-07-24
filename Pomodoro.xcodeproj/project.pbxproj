@@ -12,6 +12,7 @@
 		49D54B0231FAEDCE4FC5295F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAB1DFB44BEA94C764EBDB2 /* SettingsView.swift */; };
 		520936F39013841914F64A41 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C76653A0559542010D2B9AD5 /* Assets.xcassets */; };
 		98C52C1B0E8494FF90FDA923 /* TimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8D99F625247939824CF210 /* TimerView.swift */; };
+		9DEF183FD4EF75181DA07465 /* PopoverContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8AF190E4861F574FA9C326F /* PopoverContent.swift */; };
 		A0524556B0271F182E1DED03 /* SessionHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B6D59C9E0CCD2060CABB73E /* SessionHistoryView.swift */; };
 		ABAAAA9BC87D71431570D1B0 /* PomodoroState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FED3D37727F92FE1A3C230A8 /* PomodoroState.swift */; };
 		E0FC4C40FF44D22D650F893F /* PomodoroApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89720243547C2AC7DE9E92D8 /* PomodoroApp.swift */; };
@@ -31,6 +32,7 @@
 		C76653A0559542010D2B9AD5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CF2E5CCB442A8E09A3931715 /* TimerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerViewModel.swift; sourceTree = "<group>"; };
 		DC8D99F625247939824CF210 /* TimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerView.swift; sourceTree = "<group>"; };
+		F8AF190E4861F574FA9C326F /* PopoverContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverContent.swift; sourceTree = "<group>"; };
 		FED3D37727F92FE1A3C230A8 /* PomodoroState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroState.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -38,6 +40,7 @@
 		092CBF565D2F921EFC086229 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				F8AF190E4861F574FA9C326F /* PopoverContent.swift */,
 				0B6D59C9E0CCD2060CABB73E /* SessionHistoryView.swift */,
 				9AAB1DFB44BEA94C764EBDB2 /* SettingsView.swift */,
 				DC8D99F625247939824CF210 /* TimerView.swift */,
@@ -175,6 +178,7 @@
 				0806CA91C456A7C74FF7BD2E /* NotificationManager.swift in Sources */,
 				E0FC4C40FF44D22D650F893F /* PomodoroApp.swift in Sources */,
 				ABAAAA9BC87D71431570D1B0 /* PomodoroState.swift in Sources */,
+				9DEF183FD4EF75181DA07465 /* PopoverContent.swift in Sources */,
 				A0524556B0271F182E1DED03 /* SessionHistoryView.swift in Sources */,
 				49D54B0231FAEDCE4FC5295F /* SettingsView.swift in Sources */,
 				F21BD5B3A4B78244DC3E3ADE /* SoundManager.swift in Sources */,
