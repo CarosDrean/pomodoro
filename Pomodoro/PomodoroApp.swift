@@ -22,6 +22,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var floatingWindow: NSWindow?
     private var reappearTimer: Timer?
     private var pauseTimer: Timer?
+    private var imageResizeCancellable: AnyCancellable?
+    let breakContent = BreakContent()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -163,13 +165,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         NSApp.activate(ignoringOtherApps: true)
 
+        if info.isBreak {
+            breakContent.refresh()
+        }
+
         let alertView = FloatingAlertView(
+            breakContent: breakContent,
             title: info.title,
-            message: info.message,
             buttonText: info.buttonText,
             accentColor: info.color,
-            isBreak: info.isBreak,
-            imageData: info.imageData
+            isBreak: info.isBreak
         ) { [weak self] in
             if info.isBreak {
                 self?.hideBreakAlertForPause()
@@ -178,15 +183,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         } onSkip: { [weak self] in
             self?.timerVM.skip()
-        } onImageTap: { [weak self] in
-            guard let self else { return }
-            TimerViewModel.fetchCatImage { data in
-                Task { @MainActor in
-                    guard var currentInfo = self.timerVM.alertInfo else { return }
-                    currentInfo.imageData = data
-                    self.timerVM.alertInfo = currentInfo
-                }
-            }
         }
 
         let hostingView = NSHostingController(rootView: alertView)
@@ -203,22 +199,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if info.isBreak, let screen = NSScreen.main {
             let screenHeight = screen.frame.height
             let windowHeight = screenHeight * 2 / 3
-            let contentHeight = windowHeight - 60
-
-            var windowWidth: CGFloat = 380
-            if let imageData = info.imageData, let rep = NSBitmapImageRep(data: imageData) {
-                let imgW = rep.size.width
-                let imgH = rep.size.height
-                if imgH > 0 {
-                    let ratio = imgW / imgH
-                    windowWidth = max(380, contentHeight * ratio + 60)
-                }
-            }
+            let windowWidth: CGFloat = 380
 
             let x = (screen.frame.width - windowWidth) / 2
             let y = (screenHeight - windowHeight) / 2
             window.setFrame(NSRect(x: x, y: y, width: windowWidth, height: windowHeight), display: true)
             hostingView.view.frame = NSRect(x: 0, y: 0, width: windowWidth, height: windowHeight)
+
+            imageResizeCancellable = breakContent.$imageData
+                .receive(on: DispatchQueue.main)
+                .sink { [weak window] imageData in
+                    guard let window, let imageData, let rep = NSBitmapImageRep(data: imageData) else { return }
+                    let imgW = rep.size.width
+                    let imgH = rep.size.height
+                    guard imgH > 0 else { return }
+                    let ratio = imgW / imgH
+                    let contentHeight = windowHeight - 40
+                    let newWidth = max(380, contentHeight * ratio + 32)
+                    let screen = NSScreen.main!
+                    let x = (screen.frame.width - newWidth) / 2
+                    let y = (screenHeight - windowHeight) / 2
+                    window.setFrame(NSRect(x: x, y: y, width: newWidth, height: windowHeight), display: true)
+                }
         } else {
             hostingView.view.frame = CGRect(x: 0, y: 0, width: 380, height: 280)
             window.center()
@@ -245,6 +247,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         reappearTimer = nil
         pauseTimer?.invalidate()
         pauseTimer = nil
+        imageResizeCancellable?.cancel()
+        imageResizeCancellable = nil
         floatingWindow?.close()
         floatingWindow = nil
     }
@@ -258,26 +262,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             Task { @MainActor in
                 guard let self = self, self.timerVM.alertInfo != nil else { return }
 
-                TimerViewModel.fetchCatImage { data in
-                    Task { @MainActor in
-                        guard var info = self.timerVM.alertInfo else { return }
-                        info.imageData = data
-                        self.timerVM.alertInfo = info
+                self.breakContent.refresh()
 
+                guard let win = self.floatingWindow else { return }
+                win.orderFrontRegardless()
+                NSApp.activate()
+                NSRunningApplication.current.activate(options: [.activateIgnoringOtherApps])
+
+                self.reappearTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+                    Task { @MainActor in
+                        guard let self = self, self.timerVM.alertInfo != nil else { return }
                         guard let win = self.floatingWindow else { return }
                         win.orderFrontRegardless()
                         NSApp.activate()
                         NSRunningApplication.current.activate(options: [.activateIgnoringOtherApps])
-
-                        self.reappearTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
-                            Task { @MainActor in
-                                guard let self = self, self.timerVM.alertInfo != nil else { return }
-                                guard let win = self.floatingWindow else { return }
-                                win.orderFrontRegardless()
-                                NSApp.activate()
-                                NSRunningApplication.current.activate(options: [.activateIgnoringOtherApps])
-                            }
-                        }
                     }
                 }
             }

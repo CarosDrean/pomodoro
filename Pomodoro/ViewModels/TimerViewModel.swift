@@ -7,7 +7,6 @@ struct AlertInfo {
     let buttonText: String
     let color: Color
     let isBreak: Bool
-    var imageData: Data?
 }
 
 @MainActor
@@ -118,19 +117,13 @@ final class TimerViewModel: ObservableObject {
         isRunning = true
 
         if newPhase == .shortBreak || newPhase == .longBreak {
-            var info = AlertInfo(
+            alertInfo = AlertInfo(
                 title: "Break time",
                 message: Self.breakMessages.randomElement() ?? "Relájate un momento.",
                 buttonText: "Pause",
                 color: .green,
                 isBreak: true
             )
-            alertInfo = info
-
-            Self.fetchCatImage { data in
-                info.imageData = data
-                self.alertInfo = info
-            }
         }
 
         startTimer()
@@ -191,7 +184,7 @@ final class TimerViewModel: ObservableObject {
         }
     }
 
-    private static let breakMessages = [
+    static let breakMessages = [
         "Toma un descanso, te lo mereces.",
         "Bebe agua y estira el cuerpo.",
         "Camina un poco y descansa la vista.",
