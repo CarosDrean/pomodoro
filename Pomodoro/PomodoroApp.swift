@@ -63,7 +63,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
         if let button = statusItem.button {
-            updateIcon()
+            updateIconImage()
             button.action = #selector(iconClicked)
             button.target = self
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
@@ -87,11 +87,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func observeTimer() {
         timerVM.$phase
-            .combineLatest(timerVM.$timeRemaining)
-            .combineLatest(timerVM.$isRunning)
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _, _ in
-                self?.updateIcon()
+            .sink { [weak self] _ in
+                self?.updateIconImage()
+            }
+            .store(in: &cancellables)
+
+        timerVM.$timeRemaining
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updateIconTitle()
+            }
+            .store(in: &cancellables)
+
+        NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.timerVM.checkDayChange()
             }
             .store(in: &cancellables)
     }
@@ -111,7 +123,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - Icon
 
-    private func updateIcon() {
+    private func updateIconImage() {
         guard let button = statusItem.button else { return }
 
         let symbolName: String
@@ -133,7 +145,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             button.image = image
         }
         button.contentTintColor = nil
+        updateIconTitle()
+    }
 
+    private func updateIconTitle() {
+        guard let button = statusItem.button else { return }
         if timerVM.phase != .idle {
             button.title = " \(timerVM.formattedTime)"
         } else {
@@ -153,6 +169,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func showPopover() {
         guard let button = statusItem.button else { return }
+        timerVM.checkDayChange()
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         popover.contentViewController?.view.window?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
@@ -172,6 +189,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let alertView = FloatingAlertView(
             breakContent: breakContent,
             title: info.title,
+            message: info.message,
             buttonText: info.buttonText,
             accentColor: info.color,
             isBreak: info.isBreak
@@ -237,8 +255,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 guard let self = self, self.timerVM.alertInfo != nil else { return }
                 guard let win = self.floatingWindow else { return }
                 win.orderFrontRegardless()
-                NSApp.activate()
-                NSRunningApplication.current.activate(options: [.activateIgnoringOtherApps])
             }
         }
     }
@@ -275,8 +291,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         guard let self = self, self.timerVM.alertInfo != nil else { return }
                         guard let win = self.floatingWindow else { return }
                         win.orderFrontRegardless()
-                        NSApp.activate()
-                        NSRunningApplication.current.activate(options: [.activateIgnoringOtherApps])
                     }
                 }
             }

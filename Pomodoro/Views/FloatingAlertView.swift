@@ -18,6 +18,7 @@ final class BreakContent: ObservableObject {
 struct FloatingAlertView: View {
     @ObservedObject var breakContent: BreakContent
     let title: String
+    let message: String
     let buttonText: String
     let accentColor: Color
     let isBreak: Bool
@@ -46,7 +47,7 @@ struct FloatingAlertView: View {
                 .font(.title2.weight(.semibold))
                 .multilineTextAlignment(.center)
 
-            Text(isBreak ? breakContent.message : "Ready to focus again?")
+            Text(isBreak ? breakContent.message : message)
                 .font(.title3.weight(.medium))
                 .foregroundStyle(.primary)
                 .multilineTextAlignment(.center)

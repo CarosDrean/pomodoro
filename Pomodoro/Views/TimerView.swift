@@ -68,13 +68,11 @@ struct TimerView: View {
                     style: StrokeStyle(lineWidth: 6, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
-                .animation(.linear(duration: 1), value: viewModel.progress)
 
             VStack(spacing: 4) {
                 Text(viewModel.formattedTime)
                     .font(.system(size: 40, weight: .light, design: .rounded))
                     .foregroundStyle(.primary)
-                    .contentTransition(.numericText())
             }
         }
         .frame(width: 160, height: 160)

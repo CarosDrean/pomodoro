@@ -19,6 +19,13 @@ final class TimerViewModel: ObservableObject {
     @Published var alertInfo: AlertInfo?
 
     private var timer: Timer?
+    private var lastKnownDay: String?
+
+    private static func currentDay() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: Date())
+    }
 
     var progress: Double {
         guard totalTime > 0 else { return 0 }
@@ -49,6 +56,7 @@ final class TimerViewModel: ObservableObject {
 
     init() {
         pomodoroCount = 0
+        lastKnownDay = Self.currentDay()
     }
 
     func startWork() {
@@ -145,6 +153,15 @@ final class TimerViewModel: ObservableObject {
             return
         }
         timeRemaining -= 1
+        checkDayChange()
+    }
+
+    func checkDayChange() {
+        let today = Self.currentDay()
+        if let last = lastKnownDay, last != today {
+            reset()
+        }
+        lastKnownDay = today
     }
 
     private func completePhase() {
