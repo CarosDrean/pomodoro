@@ -27,8 +27,9 @@ struct FloatingAlertView: View {
             if isBreak, let imageData = breakContent.imageData, let nsImage = NSImage(data: imageData) {
                 Image(nsImage: nsImage)
                     .resizable()
-                    .scaledToFit()
+                    .scaledToFill()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .onTapGesture {
                         breakContent.refresh()
