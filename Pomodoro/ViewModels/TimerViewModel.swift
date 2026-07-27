@@ -153,14 +153,14 @@ final class TimerViewModel: ObservableObject {
         case .work:
             alertInfo = AlertInfo(
                 title: "Great work!",
-                message: "Time for a break. You've earned it.",
+                message: Self.breakMessages.randomElement() ?? "Time for a break.",
                 buttonText: "Start Break",
                 color: .green
             )
         case .shortBreak, .longBreak:
             alertInfo = AlertInfo(
                 title: "Break is over!",
-                message: "Ready to focus again? Let's go.",
+                message: Self.focusMessages.randomElement() ?? "Ready to focus again?",
                 buttonText: "Start Focus",
                 color: .red
             )
@@ -168,6 +168,30 @@ final class TimerViewModel: ObservableObject {
             break
         }
     }
+
+    private static let breakMessages = [
+        "Toma un descanso, te lo mereces.",
+        "Bebe agua y estira el cuerpo.",
+        "Camina un poco y descansa la vista.",
+        "Respira profundo y relaja los hombros.",
+        "Mira por la ventana unos segundos.",
+        "Saluda a un compañero o amigo.",
+        "Come algo saludable para recargar.",
+        "Haz algunos estiramientos suaves.",
+        "Escucha una canción que te guste.",
+        "Cierra los ojos y descansa la mente.",
+        "Muévete un poco, tu cuerpo lo agradecerá.",
+        "Toma 10 respiraciones profundas."
+    ]
+
+    private static let focusMessages = [
+        "¡Listo para concentrarte? ¡Vamos!",
+        "Hora de entrar en zona. Tú puedes.",
+        "Un pomodoro a la vez. ¡Enfócate!",
+        "Apaga distracciones y a trabajar.",
+        "Tu mejor trabajo empieza ahora.",
+        "Concentración total por unos minutos."
+    ]
 
     private func advanceToNextPhase() {
         if phase == .work {

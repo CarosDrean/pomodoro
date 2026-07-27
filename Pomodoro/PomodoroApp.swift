@@ -166,9 +166,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             title: info.title,
             message: info.message,
             buttonText: info.buttonText,
-            accentColor: info.color
+            accentColor: info.color,
+            isBreak: timerVM.phase == .shortBreak || timerVM.phase == .longBreak
         ) { [weak self] in
             self?.timerVM.acknowledgeAlert()
+        } onSkip: { [weak self] in
+            self?.timerVM.skip()
         }
 
         let hostingView = NSHostingController(rootView: alertView)
@@ -187,12 +190,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         floatingWindow = window
 
-        reappearTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
+        let interval: TimeInterval = timerVM.phase == .work ? 5.0 : 1.5
+        reappearTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 guard let self = self, self.timerVM.alertInfo != nil else { return }
-                if let win = self.floatingWindow, !win.isVisible {
-                    win.center()
+                if let win = self.floatingWindow {
+                    if !win.isVisible {
+                        win.center()
+                    }
                     win.makeKeyAndOrderFront(nil)
+                    NSApp.activate(ignoringOtherApps: true)
                 }
             }
         }
