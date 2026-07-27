@@ -10,7 +10,11 @@ A minimal macOS menu bar Pomodoro timer built with SwiftUI and AppKit.
 - **Auto-countdown** in the menu bar next to the icon
 - **Dynamic icon color** — red (focus), green (short break), blue (long break)
 - **Auto-start** — automatically advances to the next session
-- **Notifications** — native macOS alerts when a session completes
+- **Intrusive break mode** — floating alert with cat image + motivational phrase every 0.5s during breaks
+- **Break pause** — hide the break alert for 15s, then it reappears with a new cat and phrase
+- **Tap to refresh** — tap the cat image during a break to get a new cat + phrase
+- **Skip from alert** — skip the current session directly from the floating alert
+- **Alert sound picker** — choose from system sounds (Glass, Ping, Pop, etc.)
 - **Settings** — customize focus, break, and long break durations
 - **Session tracking** — see how many pomodoros you completed today
 - **Dark/Light mode** — icon adapts to your menu bar appearance
@@ -66,20 +70,20 @@ cp -R ~/Library/Developer/Xcode/DerivedData/Pomodoro-adctipjngqjmosfnmfkfejxjtml
 
 ```
 Pomodoro/
-├── PomodoroApp.swift           # App entry point + AppDelegate (NSStatusItem)
+├── PomodoroApp.swift           # App entry point + AppDelegate (NSStatusItem, floating alert window)
 ├── Info.plist                   # LSUIElement = true (menu bar only)
 ├── Models/
 │   └── PomodoroState.swift     # TimerPhase, SessionRecord
 ├── ViewModels/
-│   └── TimerViewModel.swift    # Timer logic, session cycling
+│   └── TimerViewModel.swift    # Timer logic, session cycling, cat image fetching
 ├── Views/
 │   ├── TimerView.swift         # Main timer UI
-│   ├── SettingsView.swift      # Duration settings
+│   ├── FloatingAlertView.swift # Break/focus floating alert with cat image
+│   ├── SettingsView.swift      # Duration settings, alert sound, intrusive mode toggle
 │   ├── SessionHistoryView.swift # Today's session history
 │   └── PopoverContent.swift    # Navigation wrapper for popover
 └── Utilities/
     ├── Defaults.swift          # UserDefaults persistence
-    ├── NotificationManager.swift
-    ├── SoundManager.swift
+    ├── SoundManager.swift      # Alert sound playback
     └── ViewModifiers.swift     # Custom cursor modifier
 ```
