@@ -204,27 +204,51 @@ final class TimerViewModel: ObservableObject {
     }
 
     static let breakMessages = [
-        "Toma un descanso, te lo mereces.",
-        "Bebe agua y estira el cuerpo.",
-        "Camina un poco y descansa la vista.",
-        "Respira profundo y relaja los hombros.",
-        "Mira por la ventana unos segundos.",
-        "Saluda a un compañero o amigo.",
-        "Come algo saludable para recargar.",
-        "Haz algunos estiramientos suaves.",
-        "Escucha una canción que te guste.",
-        "Cierra los ojos y descansa la mente.",
-        "Muévete un poco, tu cuerpo lo agradecerá.",
-        "Toma 10 respiraciones profundas."
+        "Ya, para. Descansa un momento.",
+        "Bebe agua, en serio.",
+        "Levántate y estira esa espalda.",
+        "Respira. Tranquilo, ya vuelves.",
+        "Mira por la ventana, descansa los ojos.",
+        "Sal a tomar aire aunque sea un minuto.",
+        "Parpadea unos segunditos, te va a ayudar.",
+        "Cierra los ojos y suéltalo todo.",
+        "Muévete, tu cuerpo te lo está pidiendo.",
+        "Masaéate el cuello, vas a sentirte mejor.",
+        "Apoya las manos en la mesa y estira los dedos.",
+        "Ponte de pie y sacude las piernas.",
+        "Inhala profundo por la nariz, suelta por la boca.",
+        "Mira algo lejano por unos segundos.",
+        "Ríete un poquito, aunque sea sola.",
+        "Tócate la cara, dale un respiro al cuerpo.",
+        "Camina un poco, aunque sea en círculos.",
+        "Baila una canción corta, nadie te ve.",
+        "Ayunta los hombros hacia las orejas y suéltalos.",
+        "Toma una bocanada de aire fresco.",
+        "Apoya la cabeza hacia un lado y luego al otro.",
+        "Mira algo verde, los ojos te lo agradecen.",
+        "Date palmaditas en la espalda, lo estás haciendo bien.",
+        "Haz una pausa real, no mirando el teléfono."
     ]
 
     private static let focusMessages = [
-        "¡Listo para concentrarte? ¡Vamos!",
-        "Hora de entrar en zona. Tú puedes.",
-        "Un pomodoro a la vez. ¡Enfócate!",
-        "Apaga distracciones y a trabajar.",
-        "Tu mejor trabajo empieza ahora.",
-        "Concentración total por unos minutos."
+        "¿Listo? Vamos, que esto no se hace solo.",
+        "Tú y yo sabemos que puedes con esto.",
+        "Apaga eso que te está distrayendo.",
+        "En serio, ahora. Enfócate.",
+        "¿Recuerdas por qué empezaste? Sigue.",
+        "No es suerte, es tú trabajando.",
+        "Mándalo. Ya sabes qué hacer.",
+        "Aquí no hay atajos, pero tú no los necesitas.",
+        "Respira y empieza. Ya te estoy cuidando.",
+        "¿Otra vez el teléfono? Dejalo.",
+        "Nadie lo va a hacer por ti, pero tú puedes.",
+        "Un minuto a la vez, ya verás cómo avanza.",
+        "Esto es tuyo. Nadie te lo quita.",
+        "Cuidado, que te estás distractionando otra vez.",
+        "Tú solito llegaste hasta aquí. Sigue.",
+        "No pienses tanto, solo empieza.",
+        "Hoy puede ser un buen día. Depende de ti.",
+        "Sí, otra vez. Tú con eso."
     ]
 
     static func fetchCatImage(completion: @escaping (Data?) -> Void) {
