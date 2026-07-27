@@ -13,6 +13,11 @@ struct SessionHistoryView: View {
         todayRecords.filter { $0.phase == .work }
     }
 
+    private var completedPomodoros: Int { workSessions.count }
+    private var targetPerCycle: Int { Defaults.pomodorosBeforeLongBreak }
+    private var completedCycles: Int { completedPomodoros / targetPerCycle }
+    private var pomodorosInCurrentCycle: Int { completedPomodoros % targetPerCycle }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
@@ -36,6 +41,12 @@ struct SessionHistoryView: View {
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 12)
+
+            if completedPomodoros > 0 {
+                progressCycles
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 12)
+            }
 
             Divider()
                 .padding(.horizontal, 20)
@@ -69,14 +80,54 @@ struct SessionHistoryView: View {
         .frame(width: 280, height: 350)
     }
 
+    private var progressCycles: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Today's Progress")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            HStack(spacing: 6) {
+                ForEach(0..<targetPerCycle, id: \.self) { index in
+                    Circle()
+                        .fill(index < pomodorosInCurrentCycle ? Color.red : Color.gray.opacity(0.2))
+                        .frame(width: 14, height: 14)
+                        .overlay {
+                            if index < pomodorosInCurrentCycle {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 8, weight: .bold))
+                                    .foregroundStyle(.white)
+                            }
+                        }
+                        .animation(.easeInOut(duration: 0.4), value: pomodorosInCurrentCycle)
+                }
+
+                if completedCycles > 0 {
+                    Text("×\(completedCycles)")
+                        .font(.caption2)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.red)
+                        .padding(.leading, 2)
+                }
+            }
+        }
+    }
+
     private var header: some View {
         HStack {
             Button {
                 activeView = .timer
             } label: {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(.secondary)
+                HStack(spacing: 4) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 12, weight: .semibold))
+                    Text("Timer")
+                        .font(.subheadline)
+                }
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.gray.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
             }
             .buttonStyle(.plain)
             .pointingHand()

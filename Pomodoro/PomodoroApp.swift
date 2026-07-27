@@ -19,6 +19,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let timerVM = TimerViewModel()
     private var localMonitor: Any?
     private var cancellables = Set<AnyCancellable>()
+    private var floatingWindow: NSWindow?
+    private var reappearTimer: Timer?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -26,6 +28,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         setupStatusItem()
         setupLocalMonitor()
         observeTimer()
+        observeAlert()
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
             self?.showPopover()
@@ -40,6 +43,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         showPopover()
         return false
     }
+
+    // MARK: - Setup
 
     private func setupPopover() {
         popover = NSPopover()
@@ -62,58 +67,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    private func observeTimer() {
-        timerVM.$phase
-            .combineLatest(timerVM.$timeRemaining)
-            .combineLatest(timerVM.$isRunning)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _, _ in
-                self?.updateIcon()
-            }
-            .store(in: &cancellables)
-    }
-
-    private func updateIcon() {
-        guard let button = statusItem.button else { return }
-
-        let symbolName: String
-        let tint: NSColor?
-
-        if timerVM.phase != .idle {
-            switch timerVM.phase {
-            case .work:
-                symbolName = "brain.head.profile.fill"
-                tint = .systemRed
-            case .shortBreak:
-                symbolName = "cup.and.saucer.fill"
-                tint = .systemGreen
-            case .longBreak:
-                symbolName = "moon.zzz.fill"
-                tint = .systemBlue
-            case .idle:
-                symbolName = "timer"
-                tint = nil
-            }
-        } else {
-            symbolName = "timer"
-            tint = nil
-        }
-
-        let config = NSImage.SymbolConfiguration(pointSize: 16, weight: .medium)
-        if let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: "Pomodoro")?
-            .withSymbolConfiguration(config) {
-            image.isTemplate = tint == nil
-            button.image = image
-        }
-        button.contentTintColor = tint
-
-        if timerVM.phase != .idle {
-            button.title = " \(timerVM.formattedTime)"
-        } else {
-            button.title = ""
-        }
-    }
-
     private func setupLocalMonitor() {
         localMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
             guard let self = self else { return event }
@@ -126,6 +79,66 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return event
         }
     }
+
+    // MARK: - Observers
+
+    private func observeTimer() {
+        timerVM.$phase
+            .combineLatest(timerVM.$timeRemaining)
+            .combineLatest(timerVM.$isRunning)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _, _ in
+                self?.updateIcon()
+            }
+            .store(in: &cancellables)
+    }
+
+    private func observeAlert() {
+        timerVM.$alertInfo
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] alertInfo in
+                if let info = alertInfo {
+                    self?.showFloatingAlert(info)
+                } else {
+                    self?.dismissFloatingAlert()
+                }
+            }
+            .store(in: &cancellables)
+    }
+
+    // MARK: - Icon
+
+    private func updateIcon() {
+        guard let button = statusItem.button else { return }
+
+        let symbolName: String
+        switch timerVM.phase {
+        case .work:
+            symbolName = "brain.head.profile.fill"
+        case .shortBreak:
+            symbolName = "cup.and.saucer.fill"
+        case .longBreak:
+            symbolName = "moon.zzz.fill"
+        case .idle:
+            symbolName = "timer"
+        }
+
+        let config = NSImage.SymbolConfiguration(pointSize: 16, weight: .medium)
+        if let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: "Pomodoro")?
+            .withSymbolConfiguration(config) {
+            image.isTemplate = true
+            button.image = image
+        }
+        button.contentTintColor = nil
+
+        if timerVM.phase != .idle {
+            button.title = " \(timerVM.formattedTime)"
+        } else {
+            button.title = ""
+        }
+    }
+
+    // MARK: - Popover
 
     @objc private func iconClicked() {
         if popover.isShown {
@@ -140,6 +153,56 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         popover.contentViewController?.view.window?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    // MARK: - Floating Alert
+
+    private func showFloatingAlert(_ info: AlertInfo) {
+        dismissFloatingAlert()
+
+        NSApp.activate(ignoringOtherApps: true)
+
+        let alertView = FloatingAlertView(
+            title: info.title,
+            message: info.message,
+            buttonText: info.buttonText,
+            accentColor: info.color
+        ) { [weak self] in
+            self?.timerVM.acknowledgeAlert()
+        }
+
+        let hostingView = NSHostingController(rootView: alertView)
+        hostingView.view.frame = CGRect(x: 0, y: 0, width: 380, height: 280)
+
+        let window = NSWindow(contentViewController: hostingView)
+        window.styleMask = [.borderless]
+        window.isOpaque = false
+        window.backgroundColor = .clear
+        window.level = .floating
+        window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        window.isMovableByWindowBackground = true
+        window.hasShadow = true
+        window.center()
+        window.makeKeyAndOrderFront(nil)
+
+        floatingWindow = window
+
+        reappearTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                guard let self = self, self.timerVM.alertInfo != nil else { return }
+                if let win = self.floatingWindow, !win.isVisible {
+                    win.center()
+                    win.makeKeyAndOrderFront(nil)
+                }
+            }
+        }
+    }
+
+    private func dismissFloatingAlert() {
+        reappearTimer?.invalidate()
+        reappearTimer = nil
+        floatingWindow?.close()
+        floatingWindow = nil
     }
 }
 

@@ -1,6 +1,13 @@
 import Foundation
 import SwiftUI
 
+struct AlertInfo {
+    let title: String
+    let message: String
+    let buttonText: String
+    let color: Color
+}
+
 @MainActor
 final class TimerViewModel: ObservableObject {
     @Published var phase: TimerPhase = .idle
@@ -8,6 +15,7 @@ final class TimerViewModel: ObservableObject {
     @Published var totalTime: Int = 0
     @Published var isRunning: Bool = false
     @Published var pomodoroCount: Int = 0
+    @Published var alertInfo: AlertInfo?
 
     private var timer: Timer?
 
@@ -84,12 +92,18 @@ final class TimerViewModel: ObservableObject {
         totalTime = 0
         isRunning = false
         pomodoroCount = 0
+        alertInfo = nil
     }
 
     func skip() {
         timer?.invalidate()
         timer = nil
         isRunning = false
+        advanceToNextPhase()
+    }
+
+    func acknowledgeAlert() {
+        alertInfo = nil
         advanceToNextPhase()
     }
 
@@ -128,13 +142,31 @@ final class TimerViewModel: ObservableObject {
 
         if phase == .work {
             pomodoroCount += 1
-            NotificationManager.shared.sendWorkComplete()
-        } else {
-            NotificationManager.shared.sendBreakComplete()
         }
 
         SoundManager.shared.playCompletionSound()
-        advanceToNextPhase()
+        showAlertForCompletedPhase()
+    }
+
+    private func showAlertForCompletedPhase() {
+        switch phase {
+        case .work:
+            alertInfo = AlertInfo(
+                title: "Great work!",
+                message: "Time for a break. You've earned it.",
+                buttonText: "Start Break",
+                color: .green
+            )
+        case .shortBreak, .longBreak:
+            alertInfo = AlertInfo(
+                title: "Break is over!",
+                message: "Ready to focus again? Let's go.",
+                buttonText: "Start Focus",
+                color: .red
+            )
+        case .idle:
+            break
+        }
     }
 
     private func advanceToNextPhase() {

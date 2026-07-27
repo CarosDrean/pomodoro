@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0806CA91C456A7C74FF7BD2E /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFB5864D98726D0981B3F1FE /* NotificationManager.swift */; };
+		0EC215BA61AC8424179B8BE6 /* FloatingAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 696E4BF39F7ACD660506369F /* FloatingAlertView.swift */; };
 		3666BD8245B381EC4775C56F /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49372ED32BD0E37150D8691A /* Defaults.swift */; };
 		49D54B0231FAEDCE4FC5295F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAB1DFB44BEA94C764EBDB2 /* SettingsView.swift */; };
 		520936F39013841914F64A41 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C76653A0559542010D2B9AD5 /* Assets.xcassets */; };
@@ -27,6 +28,7 @@
 		1F18AF74266B4F06163B5D01 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		49372ED32BD0E37150D8691A /* Defaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
 		63C3248B9FAB5C802C03D8BA /* Pomodoro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pomodoro.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		696E4BF39F7ACD660506369F /* FloatingAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingAlertView.swift; sourceTree = "<group>"; };
 		89720243547C2AC7DE9E92D8 /* PomodoroApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroApp.swift; sourceTree = "<group>"; };
 		9AAB1DFB44BEA94C764EBDB2 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		AFB5864D98726D0981B3F1FE /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
@@ -42,6 +44,7 @@
 		092CBF565D2F921EFC086229 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				696E4BF39F7ACD660506369F /* FloatingAlertView.swift */,
 				F8AF190E4861F574FA9C326F /* PopoverContent.swift */,
 				0B6D59C9E0CCD2060CABB73E /* SessionHistoryView.swift */,
 				9AAB1DFB44BEA94C764EBDB2 /* SettingsView.swift */,
@@ -178,6 +181,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3666BD8245B381EC4775C56F /* Defaults.swift in Sources */,
+				0EC215BA61AC8424179B8BE6 /* FloatingAlertView.swift in Sources */,
 				0806CA91C456A7C74FF7BD2E /* NotificationManager.swift in Sources */,
 				E0FC4C40FF44D22D650F893F /* PomodoroApp.swift in Sources */,
 				ABAAAA9BC87D71431570D1B0 /* PomodoroState.swift in Sources */,

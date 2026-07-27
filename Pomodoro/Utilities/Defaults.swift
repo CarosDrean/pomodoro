@@ -10,6 +10,7 @@ enum Defaults {
         static let completedToday = "completedPomodorosToday"
         static let lastSessionDate = "lastSessionDate"
         static let sessionRecords = "sessionRecords"
+        static let alertSound = "alertSound"
     }
 
     static var workDuration: Int {
@@ -64,6 +65,11 @@ enum Defaults {
                 UserDefaults.standard.set(data, forKey: Key.sessionRecords)
             }
         }
+    }
+
+    static var alertSound: String {
+        get { UserDefaults.standard.string(forKey: Key.alertSound) ?? "default" }
+        set { UserDefaults.standard.set(newValue, forKey: Key.alertSound) }
     }
 
     static func addSession(_ record: SessionRecord) {
