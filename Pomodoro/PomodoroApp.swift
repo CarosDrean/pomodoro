@@ -73,13 +73,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func setupLocalMonitor() {
         localMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
             guard let self = self else { return event }
-            if self.popover.isShown,
-               let window = event.window,
-               window != self.popover.contentViewController?.view.window,
-               window != self.statusItem.button?.window {
-                self.popover.performClose(nil)
+            if self.popover.isShown {
+                let popoverWindow = self.popover.contentViewController?.view.window
+                let statusWindow = self.statusItem.button?.window
+                if event.window != popoverWindow && event.window != statusWindow {
+                    self.popover.performClose(nil)
+                }
             }
             return event
+        }
+
+        NotificationCenter.default.addObserver(forName: NSApplication.didResignActiveNotification, object: nil, queue: .main) { [weak self] _ in
+            guard let self = self else { return }
+            if self.popover.isShown {
+                self.popover.performClose(nil)
+            }
         }
     }
 
@@ -190,8 +198,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             breakContent.refresh()
         }
 
-        SoundManager.shared.speak(info.message)
-
         let alertView = FloatingAlertView(
             breakContent: breakContent,
             title: info.title,
@@ -275,7 +281,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         pauseTimer = nil
         imageResizeCancellable?.cancel()
         imageResizeCancellable = nil
-        SoundManager.shared.stopSpeaking()
         floatingWindow?.close()
         floatingWindow = nil
     }
@@ -290,7 +295,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 guard let self = self, self.timerVM.alertInfo != nil else { return }
 
                 self.breakContent.refresh()
-                SoundManager.shared.speak(self.breakContent.message)
 
                 guard let win = self.floatingWindow else { return }
                 win.orderFrontRegardless()

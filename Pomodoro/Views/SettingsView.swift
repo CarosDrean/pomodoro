@@ -9,7 +9,6 @@ struct SettingsView: View {
     @AppStorage("autoStart") private var autoStart = true
     @AppStorage("alertSound") private var alertSound = "default"
     @AppStorage("intrusiveBreaks") private var intrusiveBreaks = true
-    @AppStorage("readPhrases") private var readPhrases = false
 
     @Binding var activeView: ActiveView
     @State private var showResetAlert = false
@@ -96,8 +95,6 @@ struct SettingsView: View {
                             Defaults.alertSound = "default"
                             intrusiveBreaks = true
                             Defaults.intrusiveBreaks = true
-                            readPhrases = false
-                            Defaults.readPhrases = false
                             showResetAlert = false
                         } label: {
                             Text("Reset")
@@ -147,12 +144,6 @@ struct SettingsView: View {
                 .font(.body)
                 .onChange(of: intrusiveBreaks) { _, newValue in
                     Defaults.intrusiveBreaks = newValue
-                }
-
-            Toggle("Read phrases aloud", isOn: $readPhrases)
-                .font(.body)
-                .onChange(of: readPhrases) { _, newValue in
-                    Defaults.readPhrases = newValue
                 }
 
             Divider()

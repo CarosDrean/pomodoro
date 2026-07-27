@@ -5,7 +5,6 @@ final class SoundManager {
     static let shared = SoundManager()
 
     private var player: AVAudioPlayer?
-    private var synthesizer: NSSpeechSynthesizer?
 
     private init() {}
 
@@ -24,16 +23,5 @@ final class SoundManager {
         } else {
             NSSound(named: soundName)?.play()
         }
-    }
-
-    func speak(_ text: String) {
-        guard Defaults.readPhrases else { return }
-        synthesizer?.stopSpeaking()
-        synthesizer = NSSpeechSynthesizer()
-        synthesizer?.startSpeaking(text)
-    }
-
-    func stopSpeaking() {
-        synthesizer?.stopSpeaking()
     }
 }
