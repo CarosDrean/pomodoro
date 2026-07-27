@@ -168,7 +168,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             message: info.message,
             buttonText: info.buttonText,
             accentColor: info.color,
-            isBreak: info.isBreak
+            isBreak: info.isBreak,
+            imageData: info.imageData
         ) { [weak self] in
             if info.isBreak {
                 self?.hideBreakAlertForPause()
@@ -177,10 +178,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         } onSkip: { [weak self] in
             self?.timerVM.skip()
+        } onImageTap: { [weak self] in
+            guard let self else { return }
+            TimerViewModel.fetchCatImage { data in
+                Task { @MainActor in
+                    guard var currentInfo = self.timerVM.alertInfo else { return }
+                    currentInfo.imageData = data
+                    self.timerVM.alertInfo = currentInfo
+                }
+            }
         }
 
         let hostingView = NSHostingController(rootView: alertView)
-        hostingView.view.frame = CGRect(x: 0, y: 0, width: 380, height: 280)
 
         let window = NSWindow(contentViewController: hostingView)
         window.styleMask = [.borderless]
@@ -190,7 +199,31 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         window.isMovableByWindowBackground = true
         window.hasShadow = true
-        window.center()
+
+        if info.isBreak, let screen = NSScreen.main {
+            let screenHeight = screen.frame.height
+            let windowHeight = screenHeight * 2 / 3
+            let contentHeight = windowHeight - 60
+
+            var windowWidth: CGFloat = 380
+            if let imageData = info.imageData, let rep = NSBitmapImageRep(data: imageData) {
+                let imgW = rep.size.width
+                let imgH = rep.size.height
+                if imgH > 0 {
+                    let ratio = imgW / imgH
+                    windowWidth = max(380, contentHeight * ratio + 60)
+                }
+            }
+
+            let x = (screen.frame.width - windowWidth) / 2
+            let y = (screenHeight - windowHeight) / 2
+            window.setFrame(NSRect(x: x, y: y, width: windowWidth, height: windowHeight), display: true)
+            hostingView.view.frame = NSRect(x: 0, y: 0, width: windowWidth, height: windowHeight)
+        } else {
+            hostingView.view.frame = CGRect(x: 0, y: 0, width: 380, height: 280)
+            window.center()
+        }
+
         window.makeKeyAndOrderFront(nil)
 
         floatingWindow = window
@@ -224,18 +257,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         pauseTimer = Timer.scheduledTimer(withTimeInterval: 15.0, repeats: false) { [weak self] _ in
             Task { @MainActor in
                 guard let self = self, self.timerVM.alertInfo != nil else { return }
-                guard let win = self.floatingWindow else { return }
-                win.orderFrontRegardless()
-                NSApp.activate()
-                NSRunningApplication.current.activate(options: [.activateIgnoringOtherApps])
 
-                self.reappearTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+                TimerViewModel.fetchCatImage { data in
                     Task { @MainActor in
-                        guard let self = self, self.timerVM.alertInfo != nil else { return }
+                        guard var info = self.timerVM.alertInfo else { return }
+                        info.imageData = data
+                        self.timerVM.alertInfo = info
+
                         guard let win = self.floatingWindow else { return }
                         win.orderFrontRegardless()
                         NSApp.activate()
                         NSRunningApplication.current.activate(options: [.activateIgnoringOtherApps])
+
+                        self.reappearTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+                            Task { @MainActor in
+                                guard let self = self, self.timerVM.alertInfo != nil else { return }
+                                guard let win = self.floatingWindow else { return }
+                                win.orderFrontRegardless()
+                                NSApp.activate()
+                                NSRunningApplication.current.activate(options: [.activateIgnoringOtherApps])
+                            }
+                        }
                     }
                 }
             }

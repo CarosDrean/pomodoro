@@ -7,6 +7,7 @@ struct AlertInfo {
     let buttonText: String
     let color: Color
     let isBreak: Bool
+    var imageData: Data?
 }
 
 @MainActor
@@ -100,6 +101,7 @@ final class TimerViewModel: ObservableObject {
         timer?.invalidate()
         timer = nil
         isRunning = false
+        alertInfo = nil
         advanceToNextPhase()
     }
 
@@ -116,13 +118,19 @@ final class TimerViewModel: ObservableObject {
         isRunning = true
 
         if newPhase == .shortBreak || newPhase == .longBreak {
-            alertInfo = AlertInfo(
+            var info = AlertInfo(
                 title: "Break time",
                 message: Self.breakMessages.randomElement() ?? "Relájate un momento.",
                 buttonText: "Pause",
                 color: .green,
                 isBreak: true
             )
+            alertInfo = info
+
+            Self.fetchCatImage { data in
+                info.imageData = data
+                self.alertInfo = info
+            }
         }
 
         startTimer()
@@ -206,6 +214,19 @@ final class TimerViewModel: ObservableObject {
         "Tu mejor trabajo empieza ahora.",
         "Concentración total por unos minutos."
     ]
+
+    static func fetchCatImage(completion: @escaping (Data?) -> Void) {
+        let cacheBuster = Int(Date().timeIntervalSince1970)
+        let url = URL(string: "https://cataas.com/cat?\(cacheBuster)")!
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            guard let data = data, error == nil else {
+                DispatchQueue.main.async { completion(nil) }
+                return
+            }
+            DispatchQueue.main.async { completion(data) }
+        }
+        task.resume()
+    }
 
     private func advanceToNextPhase() {
         if phase == .work {
