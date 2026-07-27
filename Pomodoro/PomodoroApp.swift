@@ -190,6 +190,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             breakContent.refresh()
         }
 
+        SoundManager.shared.speak(info.message)
+
         let alertView = FloatingAlertView(
             breakContent: breakContent,
             title: info.title,
@@ -273,6 +275,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         pauseTimer = nil
         imageResizeCancellable?.cancel()
         imageResizeCancellable = nil
+        SoundManager.shared.stopSpeaking()
         floatingWindow?.close()
         floatingWindow = nil
     }
@@ -287,6 +290,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 guard let self = self, self.timerVM.alertInfo != nil else { return }
 
                 self.breakContent.refresh()
+                SoundManager.shared.speak(self.breakContent.message)
 
                 guard let win = self.floatingWindow else { return }
                 win.orderFrontRegardless()

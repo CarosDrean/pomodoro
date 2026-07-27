@@ -12,6 +12,7 @@ enum Defaults {
         static let sessionRecords = "sessionRecords"
         static let alertSound = "alertSound"
         static let intrusiveBreaks = "intrusiveBreaks"
+        static let readPhrases = "readPhrases"
     }
 
     static var workDuration: Int {
@@ -79,6 +80,14 @@ enum Defaults {
             return UserDefaults.standard.bool(forKey: Key.intrusiveBreaks)
         }
         set { UserDefaults.standard.set(newValue, forKey: Key.intrusiveBreaks) }
+    }
+
+    static var readPhrases: Bool {
+        get {
+            guard UserDefaults.standard.object(forKey: Key.readPhrases) != nil else { return false }
+            return UserDefaults.standard.bool(forKey: Key.readPhrases)
+        }
+        set { UserDefaults.standard.set(newValue, forKey: Key.readPhrases) }
     }
 
     static func addSession(_ record: SessionRecord) {

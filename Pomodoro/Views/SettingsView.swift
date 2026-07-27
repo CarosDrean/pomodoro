@@ -9,9 +9,11 @@ struct SettingsView: View {
     @AppStorage("autoStart") private var autoStart = true
     @AppStorage("alertSound") private var alertSound = "default"
     @AppStorage("intrusiveBreaks") private var intrusiveBreaks = true
+    @AppStorage("readPhrases") private var readPhrases = false
 
     @Binding var activeView: ActiveView
     @State private var showResetAlert = false
+    @State private var selectedTab = 0
 
     private let soundOptions = [
         ("default", "Default (Beep)"),
@@ -28,54 +30,22 @@ struct SettingsView: View {
             header
                 .padding(.horizontal, 20)
                 .padding(.top, 18)
-                .padding(.bottom, 16)
+                .padding(.bottom, 12)
 
-            VStack(alignment: .leading, spacing: 14) {
-                durationRow(label: "Focus", value: $workDuration, color: .red)
-                durationRow(label: "Short Break", value: $shortBreakDuration, color: .green)
-                durationRow(label: "Long Break", value: $longBreakDuration, color: .blue)
+            Picker("", selection: $selectedTab) {
+                Text("Timer").tag(0)
+                Text("Options").tag(1)
             }
+            .pickerStyle(.segmented)
+            .labelsHidden()
             .padding(.horizontal, 20)
+            .padding(.bottom, 14)
 
-            Divider()
-                .padding(.horizontal, 20)
-                .padding(.vertical, 12)
-
-            VStack(alignment: .leading, spacing: 10) {
-                Stepper(
-                    "Sessions before long break: \(pomodorosBeforeLongBreak)",
-                    value: $pomodorosBeforeLongBreak,
-                    in: 2...8
-                )
-                .font(.subheadline)
-
-                Toggle("Auto-start next session", isOn: $autoStart)
-                    .font(.subheadline)
-
-                Toggle("Intrusive break mode", isOn: $intrusiveBreaks)
-                    .font(.subheadline)
-                    .onChange(of: intrusiveBreaks) { _, newValue in
-                        Defaults.intrusiveBreaks = newValue
-                    }
-
-                HStack {
-                    Text("Alert sound")
-                        .font(.subheadline)
-                    Spacer()
-                    Picker("", selection: $alertSound) {
-                        ForEach(soundOptions, id: \.0) { key, label in
-                            Text(label).tag(key)
-                        }
-                    }
-                    .frame(width: 130)
-                    .labelsHidden()
-                    .onChange(of: alertSound) { _, newValue in
-                        Defaults.alertSound = newValue
-                        SoundManager.shared.playPreview(named: newValue)
-                    }
-                }
+            if selectedTab == 0 {
+                timerTab
+            } else {
+                optionsTab
             }
-            .padding(.horizontal, 20)
 
             Spacer(minLength: 0)
 
@@ -126,6 +96,8 @@ struct SettingsView: View {
                             Defaults.alertSound = "default"
                             intrusiveBreaks = true
                             Defaults.intrusiveBreaks = true
+                            readPhrases = false
+                            Defaults.readPhrases = false
                             showResetAlert = false
                         } label: {
                             Text("Reset")
@@ -143,6 +115,69 @@ struct SettingsView: View {
             }
         }
     }
+
+    // MARK: - Tabs
+
+    private var timerTab: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 14) {
+                durationRow(label: "Focus", value: $workDuration, color: .red)
+                durationRow(label: "Short Break", value: $shortBreakDuration, color: .green)
+                durationRow(label: "Long Break", value: $longBreakDuration, color: .blue)
+            }
+
+            Divider()
+
+            Stepper(
+                "Sessions before long break: \(pomodorosBeforeLongBreak)",
+                value: $pomodorosBeforeLongBreak,
+                in: 2...8
+            )
+            .font(.body)
+        }
+        .padding(.horizontal, 20)
+    }
+
+    private var optionsTab: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Toggle("Auto-start next session", isOn: $autoStart)
+                .font(.body)
+
+            Toggle("Intrusive break mode", isOn: $intrusiveBreaks)
+                .font(.body)
+                .onChange(of: intrusiveBreaks) { _, newValue in
+                    Defaults.intrusiveBreaks = newValue
+                }
+
+            Toggle("Read phrases aloud", isOn: $readPhrases)
+                .font(.body)
+                .onChange(of: readPhrases) { _, newValue in
+                    Defaults.readPhrases = newValue
+                }
+
+            Divider()
+
+            HStack {
+                Text("Alert sound")
+                    .font(.body)
+                Spacer()
+                Picker("", selection: $alertSound) {
+                    ForEach(soundOptions, id: \.0) { key, label in
+                        Text(label).tag(key)
+                    }
+                }
+                .frame(width: 130)
+                .labelsHidden()
+                .onChange(of: alertSound) { _, newValue in
+                    Defaults.alertSound = newValue
+                    SoundManager.shared.playPreview(named: newValue)
+                }
+            }
+        }
+        .padding(.horizontal, 20)
+    }
+
+    // MARK: - Header
 
     private var header: some View {
         HStack {
@@ -177,14 +212,14 @@ struct SettingsView: View {
                 .fill(color)
                 .frame(width: 8, height: 8)
             Text(label)
-                .font(.subheadline)
+                .font(.body)
             Spacer()
             Stepper(
                 value: value,
                 in: 1...60
             ) {
                 Text("\(value.wrappedValue) min")
-                    .font(.subheadline)
+                    .font(.body)
                     .monospacedDigit()
                     .foregroundStyle(.secondary)
             }
