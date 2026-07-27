@@ -21,6 +21,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var cancellables = Set<AnyCancellable>()
     private var floatingWindow: NSWindow?
     private var reappearTimer: Timer?
+    private var pauseTimer: Timer?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -167,9 +168,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             message: info.message,
             buttonText: info.buttonText,
             accentColor: info.color,
-            isBreak: timerVM.phase == .shortBreak || timerVM.phase == .longBreak
+            isBreak: info.isBreak
         ) { [weak self] in
-            self?.timerVM.acknowledgeAlert()
+            if info.isBreak {
+                self?.hideBreakAlertForPause()
+            } else {
+                self?.timerVM.acknowledgeAlert()
+            }
         } onSkip: { [weak self] in
             self?.timerVM.skip()
         }
@@ -190,17 +195,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         floatingWindow = window
 
-        let interval: TimeInterval = timerVM.phase == .work ? 5.0 : 1.5
+        let interval: TimeInterval = timerVM.phase == .work ? 5.0 : 0.5
         reappearTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 guard let self = self, self.timerVM.alertInfo != nil else { return }
-                if let win = self.floatingWindow {
-                    if !win.isVisible {
-                        win.center()
-                    }
-                    win.makeKeyAndOrderFront(nil)
-                    NSApp.activate(ignoringOtherApps: true)
-                }
+                guard let win = self.floatingWindow else { return }
+                win.orderFrontRegardless()
+                NSApp.activate()
+                NSRunningApplication.current.activate(options: [.activateIgnoringOtherApps])
             }
         }
     }
@@ -208,8 +210,36 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func dismissFloatingAlert() {
         reappearTimer?.invalidate()
         reappearTimer = nil
+        pauseTimer?.invalidate()
+        pauseTimer = nil
         floatingWindow?.close()
         floatingWindow = nil
+    }
+
+    private func hideBreakAlertForPause() {
+        reappearTimer?.invalidate()
+        reappearTimer = nil
+        floatingWindow?.orderOut(nil)
+
+        pauseTimer = Timer.scheduledTimer(withTimeInterval: 15.0, repeats: false) { [weak self] _ in
+            Task { @MainActor in
+                guard let self = self, self.timerVM.alertInfo != nil else { return }
+                guard let win = self.floatingWindow else { return }
+                win.orderFrontRegardless()
+                NSApp.activate()
+                NSRunningApplication.current.activate(options: [.activateIgnoringOtherApps])
+
+                self.reappearTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+                    Task { @MainActor in
+                        guard let self = self, self.timerVM.alertInfo != nil else { return }
+                        guard let win = self.floatingWindow else { return }
+                        win.orderFrontRegardless()
+                        NSApp.activate()
+                        NSRunningApplication.current.activate(options: [.activateIgnoringOtherApps])
+                    }
+                }
+            }
+        }
     }
 }
 

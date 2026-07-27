@@ -23,19 +23,31 @@ struct FloatingAlertView: View {
                 .font(.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
 
-            Button {
-                onDismiss()
-            } label: {
-                Text(buttonText)
-                    .font(.body.weight(.semibold))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(accentColor)
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+            if isBreak {
+                Button {
+                    onDismiss()
+                } label: {
+                    Text(buttonText)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            } else {
+                Button {
+                    onDismiss()
+                } label: {
+                    Text(buttonText)
+                        .font(.body.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(accentColor)
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
 
             if isBreak {
                 Button {
@@ -49,7 +61,7 @@ struct FloatingAlertView: View {
             }
         }
         .padding(40)
-        .frame(width: 380, height: isBreak ? 310 : 280)
+        .frame(width: 380, height: isBreak ? 320 : 280)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .shadow(color: .black.opacity(0.2), radius: 20, y: 10)

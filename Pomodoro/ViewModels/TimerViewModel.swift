@@ -6,6 +6,7 @@ struct AlertInfo {
     let message: String
     let buttonText: String
     let color: Color
+    let isBreak: Bool
 }
 
 @MainActor
@@ -113,6 +114,17 @@ final class TimerViewModel: ObservableObject {
         timeRemaining = duration
         totalTime = duration
         isRunning = true
+
+        if newPhase == .shortBreak || newPhase == .longBreak {
+            alertInfo = AlertInfo(
+                title: "Break time",
+                message: Self.breakMessages.randomElement() ?? "Relájate un momento.",
+                buttonText: "Pause",
+                color: .green,
+                isBreak: true
+            )
+        }
+
         startTimer()
     }
 
@@ -155,14 +167,16 @@ final class TimerViewModel: ObservableObject {
                 title: "Great work!",
                 message: Self.breakMessages.randomElement() ?? "Time for a break.",
                 buttonText: "Start Break",
-                color: .green
+                color: .green,
+                isBreak: false
             )
         case .shortBreak, .longBreak:
             alertInfo = AlertInfo(
                 title: "Break is over!",
                 message: Self.focusMessages.randomElement() ?? "Ready to focus again?",
                 buttonText: "Start Focus",
-                color: .red
+                color: .red,
+                isBreak: false
             )
         case .idle:
             break
