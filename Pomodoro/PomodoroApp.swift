@@ -151,9 +151,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func updateIconTitle() {
         guard let button = statusItem.button else { return }
         if timerVM.phase != .idle {
-            button.title = " \(timerVM.formattedTime)"
+            let font = NSFont.monospacedDigitSystemFont(ofSize: NSFont.menuBarFont(ofSize: 0).pointSize, weight: .regular)
+            let attrs: [NSAttributedString.Key: Any] = [
+                .font: font
+            ]
+            button.attributedTitle = NSAttributedString(string: " \(timerVM.formattedTime)", attributes: attrs)
         } else {
-            button.title = ""
+            button.attributedTitle = NSAttributedString(string: "")
         }
     }
 
