@@ -4,12 +4,14 @@ import SwiftUI
 final class BreakContent: ObservableObject {
     @Published var imageData: Data?
     @Published var message: String = ""
+    @Published var refreshID = UUID()
 
     func refresh() {
+        message = TimerViewModel.breakMessages.randomElement() ?? "Relájate un momento."
+        refreshID = UUID()
         TimerViewModel.fetchCatImage { [weak self] data in
             self?.imageData = data
         }
-        message = TimerViewModel.breakMessages.randomElement() ?? "Relájate un momento."
     }
 }
 
@@ -53,6 +55,7 @@ struct FloatingAlertView: View {
                 .padding(.vertical, 8)
                 .background(accentColor.opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                .id(breakContent.refreshID)
 
             if isBreak {
                 Button {

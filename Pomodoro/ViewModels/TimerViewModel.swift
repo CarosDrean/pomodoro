@@ -117,13 +117,15 @@ final class TimerViewModel: ObservableObject {
         isRunning = true
 
         if newPhase == .shortBreak || newPhase == .longBreak {
-            alertInfo = AlertInfo(
-                title: "Break time",
-                message: Self.breakMessages.randomElement() ?? "Relájate un momento.",
-                buttonText: "Pause",
-                color: .green,
-                isBreak: true
-            )
+            if Defaults.intrusiveBreaks {
+                alertInfo = AlertInfo(
+                    title: "Break time",
+                    message: Self.breakMessages.randomElement() ?? "Relájate un momento.",
+                    buttonText: "Pause",
+                    color: .green,
+                    isBreak: true
+                )
+            }
         }
 
         startTimer()

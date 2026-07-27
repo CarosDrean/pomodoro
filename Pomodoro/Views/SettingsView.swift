@@ -8,6 +8,7 @@ struct SettingsView: View {
     @AppStorage("pomodorosBeforeLongBreak") private var pomodorosBeforeLongBreak = 4
     @AppStorage("autoStart") private var autoStart = true
     @AppStorage("alertSound") private var alertSound = "default"
+    @AppStorage("intrusiveBreaks") private var intrusiveBreaks = true
 
     @Binding var activeView: ActiveView
     @State private var showResetConfirm = false
@@ -51,6 +52,12 @@ struct SettingsView: View {
                 Toggle("Auto-start next session", isOn: $autoStart)
                     .font(.subheadline)
 
+                Toggle("Intrusive break mode", isOn: $intrusiveBreaks)
+                    .font(.subheadline)
+                    .onChange(of: intrusiveBreaks) { _, newValue in
+                        Defaults.intrusiveBreaks = newValue
+                    }
+
                 HStack {
                     Text("Alert sound")
                         .font(.subheadline)
@@ -93,6 +100,8 @@ struct SettingsView: View {
                         autoStart = true
                         alertSound = "default"
                         Defaults.alertSound = "default"
+                        intrusiveBreaks = true
+                        Defaults.intrusiveBreaks = true
                     }
                 } message: {
                     Text("This will restore all durations and options to their original values.")
