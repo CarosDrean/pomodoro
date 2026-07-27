@@ -55,6 +55,7 @@ struct SettingsView: View {
                     .foregroundStyle(.secondary)
             }
             .buttonStyle(.plain)
+            .pointingHand()
 
             Text("Settings")
                 .font(.headline)

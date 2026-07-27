@@ -77,33 +77,35 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         guard let button = statusItem.button else { return }
 
         let symbolName: String
-        let color: NSColor
+        let tint: NSColor?
 
         if timerVM.phase != .idle {
             switch timerVM.phase {
             case .work:
                 symbolName = "brain.head.profile.fill"
-                color = timerVM.isRunning ? .systemRed : .systemRed
+                tint = .systemRed
             case .shortBreak:
                 symbolName = "cup.and.saucer.fill"
-                color = timerVM.isRunning ? .systemGreen : .systemGreen
+                tint = .systemGreen
             case .longBreak:
                 symbolName = "moon.zzz.fill"
-                color = timerVM.isRunning ? .systemBlue : .systemBlue
+                tint = .systemBlue
             case .idle:
                 symbolName = "timer"
-                color = .labelColor
+                tint = nil
             }
         } else {
             symbolName = "timer"
-            color = .labelColor
+            tint = nil
         }
 
         let config = NSImage.SymbolConfiguration(pointSize: 16, weight: .medium)
-        let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: "Pomodoro")?
-            .withSymbolConfiguration(config)
-        button.image = image
-        button.contentTintColor = color
+        if let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: "Pomodoro")?
+            .withSymbolConfiguration(config) {
+            image.isTemplate = tint == nil
+            button.image = image
+        }
+        button.contentTintColor = tint
 
         if timerVM.phase != .idle {
             button.title = " \(timerVM.formattedTime)"

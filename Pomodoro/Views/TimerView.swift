@@ -52,6 +52,7 @@ struct TimerView: View {
                     .foregroundStyle(.secondary)
             }
             .buttonStyle(.plain)
+            .pointingHand()
         }
     }
 
@@ -81,6 +82,7 @@ struct TimerView: View {
         .onTapGesture {
             viewModel.toggle()
         }
+        .pointingHand()
     }
 
     private var phaseLabel: some View {
@@ -101,6 +103,7 @@ struct TimerView: View {
             .buttonStyle(.plain)
             .disabled(viewModel.phase == .idle)
             .foregroundStyle(viewModel.phase == .idle ? .gray : .primary)
+            .pointingHand()
 
             Button {
                 viewModel.toggle()
@@ -110,6 +113,7 @@ struct TimerView: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(viewModel.phaseColor)
+            .pointingHand()
 
             Button {
                 viewModel.skip()
@@ -120,6 +124,7 @@ struct TimerView: View {
             .buttonStyle(.plain)
             .disabled(viewModel.phase == .idle)
             .foregroundStyle(viewModel.phase == .idle ? .gray : .primary)
+            .pointingHand()
         }
     }
 
@@ -150,6 +155,7 @@ struct TimerView: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(.secondary)
+            .pointingHand()
 
             Spacer()
 
@@ -161,6 +167,7 @@ struct TimerView: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(.secondary)
+            .pointingHand()
         }
     }
 }

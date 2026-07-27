@@ -79,6 +79,7 @@ struct SessionHistoryView: View {
                     .foregroundStyle(.secondary)
             }
             .buttonStyle(.plain)
+            .pointingHand()
 
             Text("Today's Sessions")
                 .font(.headline)
