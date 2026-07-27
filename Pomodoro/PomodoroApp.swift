@@ -214,8 +214,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     let imgH = rep.size.height
                     guard imgH > 0 else { return }
                     let ratio = imgW / imgH
-                    let contentHeight = windowHeight - 40
-                    let newWidth = max(380, contentHeight * ratio + 32)
+                    let contentHeight = windowHeight - 120
+                    let imageWidth = contentHeight * ratio
+                    let newWidth = max(380, imageWidth + 16)
                     let screen = NSScreen.main!
                     let x = (screen.frame.width - newWidth) / 2
                     let y = (screenHeight - windowHeight) / 2

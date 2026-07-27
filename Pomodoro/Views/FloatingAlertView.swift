@@ -92,7 +92,8 @@ struct FloatingAlertView: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(16)
+        .padding(.horizontal, isBreak ? 8 : 20)
+        .padding(.vertical, 16)
         .frame(width: isBreak ? 380 : 380, height: isBreak ? nil : 280)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.ultraThinMaterial)

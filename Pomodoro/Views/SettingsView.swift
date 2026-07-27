@@ -11,7 +11,7 @@ struct SettingsView: View {
     @AppStorage("intrusiveBreaks") private var intrusiveBreaks = true
 
     @Binding var activeView: ActiveView
-    @State private var showResetConfirm = false
+    @State private var showResetAlert = false
 
     private let soundOptions = [
         ("default", "Default (Beep)"),
@@ -82,7 +82,7 @@ struct SettingsView: View {
             HStack {
                 Spacer()
                 Button {
-                    showResetConfirm = true
+                    showResetAlert = true
                 } label: {
                     Text("Reset to Defaults")
                         .font(.caption)
@@ -90,27 +90,58 @@ struct SettingsView: View {
                 }
                 .buttonStyle(.plain)
                 .pointingHand()
-                .alert("Reset all settings?", isPresented: $showResetConfirm) {
-                    Button("Cancel", role: .cancel) {}
-                    Button("Reset", role: .destructive) {
-                        workDuration = 25
-                        shortBreakDuration = 5
-                        longBreakDuration = 15
-                        pomodorosBeforeLongBreak = 4
-                        autoStart = true
-                        alertSound = "default"
-                        Defaults.alertSound = "default"
-                        intrusiveBreaks = true
-                        Defaults.intrusiveBreaks = true
-                    }
-                } message: {
-                    Text("This will restore all durations and options to their original values.")
-                }
                 .padding(.trailing, 20)
                 .padding(.bottom, 14)
             }
         }
         .frame(width: 280, height: 350)
+        .overlay {
+            if showResetAlert {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+                    .onTapGesture { showResetAlert = false }
+                VStack(spacing: 12) {
+                    Text("Reset all settings?")
+                        .font(.headline)
+                    Text("This will restore all durations and options to their original values.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                    HStack(spacing: 16) {
+                        Button {
+                            showResetAlert = false
+                        } label: {
+                            Text("Cancel")
+                                .font(.subheadline)
+                        }
+                        .buttonStyle(.bordered)
+                        .pointingHand()
+                        Button {
+                            workDuration = 25
+                            shortBreakDuration = 5
+                            longBreakDuration = 15
+                            pomodorosBeforeLongBreak = 4
+                            autoStart = true
+                            alertSound = "default"
+                            Defaults.alertSound = "default"
+                            intrusiveBreaks = true
+                            Defaults.intrusiveBreaks = true
+                            showResetAlert = false
+                        } label: {
+                            Text("Reset")
+                                .font(.subheadline)
+                                .foregroundStyle(.white)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.red)
+                        .pointingHand()
+                    }
+                }
+                .padding(20)
+                .frame(width: 240)
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+            }
+        }
     }
 
     private var header: some View {
