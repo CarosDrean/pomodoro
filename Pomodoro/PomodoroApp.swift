@@ -259,6 +259,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 guard let self = self, self.timerVM.alertInfo != nil else { return }
                 guard let win = self.floatingWindow else { return }
                 win.orderFrontRegardless()
+                if self.timerVM.phase != .work {
+                    NSApp.activate(ignoringOtherApps: true)
+                }
             }
         }
     }
@@ -295,6 +298,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         guard let self = self, self.timerVM.alertInfo != nil else { return }
                         guard let win = self.floatingWindow else { return }
                         win.orderFrontRegardless()
+                        NSApp.activate(ignoringOtherApps: true)
                     }
                 }
             }
