@@ -48,10 +48,28 @@ open Pomodoro.xcodeproj
 
 ## Install
 
-Copy `Pomodoro.app` to `/Applications`:
+Generate, build, and install to `/Applications` in one step:
 
 ```bash
-cp -R ~/Library/Developer/Xcode/DerivedData/Pomodoro-adctipjngqjmosfnmfkfejxjtmlw/Build/Products/Debug/Pomodoro.app /Applications/
+./install.sh
+```
+
+It quits any running copy, installs the app, and launches it. Options:
+
+```bash
+./install.sh --debug            # build the Debug configuration
+./install.sh --dest ~/Applications
+./install.sh --no-open          # install without launching
+./install.sh --uninstall        # remove /Applications/Pomodoro.app
+```
+
+You can also do it by hand:
+
+```bash
+xcodegen generate
+xcodebuild -scheme Pomodoro -configuration Release -destination 'platform=macOS' \
+  -derivedDataPath build build
+cp -R build/Build/Products/Release/Pomodoro.app /Applications/
 ```
 
 ## Usage
